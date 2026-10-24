@@ -1,6 +1,6 @@
 # scikit-learn Cookbook — Code Reproduction
 
-This repository reproduces, explains, and extends the code from **_scikit-learn Cookbook, Third Edition_** (John Sukup, Packt Publishing / O'Reilly), Chapters 1–8. It was built as a machine learning coursework assignment: for every chapter, the book's recipes are reproduced in a Jupyter notebook, each technique is explained from first principles, and the results are verified numerically (not just illustrated) — often with extra experiments beyond what the book itself shows.
+This repository reproduces, explains, and extends the code from **_scikit-learn Cookbook, Third Edition_** (John Sukup, Packt Publishing / O'Reilly), Chapters 1–13 (the full set of recipe chapters). It was built as a machine learning coursework assignment: for every chapter, the book's recipes are reproduced in a Jupyter notebook, each technique is explained from first principles, and the results are verified numerically (not just illustrated) — often with extra experiments beyond what the book itself shows.
 
 **Author:** Nathanael — S1 Teknik Komputer, Telkom University
 
@@ -24,6 +24,16 @@ scikit-learn-cookbook/
 │   └── ch07_svm_kernels.ipynb
 ├── 08. Tree-Based Algorithms and Ensemble Methods/
 │   └── ch08_trees_ensembles.ipynb
+├── 09. Text Processing and Multiclass Classification/
+│   └── ch09_text_processing.ipynb
+├── 10. Clustering Techniques/
+│   └── ch10_clustering.ipynb
+├── 11. Novelty and Outlier Detection/
+│   └── ch11_novelty_outlier_detection.ipynb
+├── 12. Cross-Validation and Model Evaluation Techniques/
+│   └── ch12_cross_validation.ipynb
+├── 13. Deploying scikit-learn Models in Production/
+│   └── ch13_model_deployment.ipynb
 ├── requirements.txt
 └── README.md
 ```
@@ -55,6 +65,21 @@ Builds SVM intuition from margin maximization and support vectors up, including 
 
 ### Chapter 8 — Tree-Based Algorithms and Ensemble Methods
 Covers decision trees (Gini impurity verified by hand, tree visualization, a train-vs-test accuracy curve across `max_depth` showing classic overfitting), random forests and bagging (feature importance, and a repeated-cross-validation comparison against a single tree to fairly assess variance reduction), gradient boosting machines (a staged train/test log-loss curve making the sequential error-correction mechanism directly visible), hyperparameter tuning (grid-search heatmaps and a validation curve), and a comparison of bagging/boosting/stacking ensemble strategies using repeated cross-validation rather than a single noisy split. Closes with three practical exercises on the Breast Cancer dataset, including a random forest vs. gradient boosting accuracy/fit-time trade-off.
+
+### Chapter 9 — Text Processing and Multiclass Classification
+Covers Bag-of-Words (`CountVectorizer`) and TF-IDF (`TfidfVectorizer`) vectorization on the `movie_reviews`/`reuters` corpora, with a from-scratch TF-IDF formula verified against scikit-learn's own output, n-gram extraction and POS tagging (`nltk.pos_tag`) on the Brown corpus, and a text classification comparison (Naive Bayes vs. SVM vs. logistic regression). Covers one-vs-rest vs. one-vs-one multiclass strategies — including a fix to the book's own broken OvO recipe, which (as written) draws its 6-document sample entirely from a single Brown category, making a genuine multiclass comparison impossible — and closes with a full evaluation (precision/recall/F1, confusion matrix) on the full movie-review corpus plus three practical exercises.
+
+### Chapter 10 — Clustering Techniques
+Covers K-means (iterative assign/update, inertia, the elbow method with a numeric second-difference heuristic cross-checked against the data's true cluster count), hierarchical/agglomerative clustering (dendrograms, a 4-way linkage-method comparison scored by agreement with K-means), and DBSCAN (density-based clustering succeeding where K-means fails on moon-shaped data, plus a k-distance-plot-based `eps` selection method). Rigorously tests whether internal evaluation metrics (silhouette, Davies-Bouldin, Calinski-Harabasz) can recover the true number of clusters without ground truth — finding, honestly, that they do **not** all agree in this run, which is itself the chapter's real lesson. Closes with a 3-shapes × 3-algorithms silhouette comparison, spectral clustering and Gaussian Mixture Models (with `predict_proba` soft-assignment demonstration), and three practical exercises (Iris, moons, high-dimensional PCA+GMM).
+
+### Chapter 11 — Novelty and Outlier Detection
+Covers Isolation Forest (random-split isolation, `decision_function` anomaly scores), One-Class SVM for novelty detection (trained on normal data only, with a `nu` hyperparameter sweep), and Local Outlier Factor (density-based detection on data with two different cluster densities, compared directly against Isolation Forest's higher false-positive rate on the same data). Evaluates all three with precision/recall/F1/ROC-AUC against labeled synthetic data — including a sign-convention fix for feeding `decision_function()` into `roc_auc_score` — and covers strategies for handling detected outliers (removal, median replacement, winsorization) with a quantified comparison against the true clean-data statistics. Closes with a head-to-head algorithm comparison and three practical exercises.
+
+### Chapter 12 — Cross-Validation and Model Evaluation Techniques
+Covers k-fold vs. stratified k-fold (with per-fold class-balance verification), leave-one-out and nested cross-validation (correcting a metric mismatch in the book's own narrative, which cites an "MSE" figure for what the code actually computes as R²), and a full metrics overview (accuracy vs. precision/recall/F1/ROC-AUC on an imbalanced 70/30 dataset, showing exactly how accuracy alone can mislead). Walks through `cross_val_score`/`cross_validate`/`GridSearchCV`, grid search vs. randomized search, and learning curves/validation curves for diagnosing underfitting vs. overfitting — with every "converges around X samples" or "best hyperparameter" claim checked against the actual printed numbers rather than read off a plot. Closes with three practical exercises.
+
+### Chapter 13 — Deploying scikit-learn Models in Production
+Covers model serialization/persistence (`joblib` vs. `pickle`, with a verified-identical round-trip check and a measured batch-vs-single-request latency benchmark), scaling with `n_jobs` parallelism (benchmarked rather than assumed), and monitoring deployed models for drift via simulated streaming batches. Corrects two issues found while verifying the book's own code: a shape-mismatch bug in its model life-cycle recipe (validating a 20-feature model against the 4-feature Iris dataset, which would raise a `ValueError`), and a CI/CD validation gate tested against literally random, unrelated data (replaced with a methodologically sound held-out split) — plus an SGD streaming-monitor exercise that required training to genuine convergence (several `partial_fit` epochs) to actually demonstrate the intended "no drift" contrast. Closes with model life-cycle versioning/rollback and three practical exercises, completing the book's full recipe-chapter sequence.
 
 ## How to Run
 
